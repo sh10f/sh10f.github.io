@@ -8,9 +8,21 @@
     <link href="/2024/07/28/nndl-Intro/"/>
     <url>/2024/07/28/nndl-Intro/</url>
     
-    <content type="html"><![CDATA[]]></content>
+    <content type="html"><![CDATA[<p>正文的一部分作为摘要<br><span id="more"></span><br>余下的正文</p>]]></content>
     
     
+    <categories>
+      
+      <category>深度学习</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>nndl</tag>
+      
+    </tags>
     
   </entry>
   
