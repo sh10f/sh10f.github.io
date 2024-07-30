@@ -1,0 +1,1066 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="ShihaoF">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="流水线级数 越多越好？NO！ 流水线对 单条指令的执行时间 基本没有影响， 甚至会 增加执行时间。 因为流水线有 额外开销 —- 锁存器时延和时钟偏移时延。  额外开销限制了流水线深度的增加。当流水线时钟周期减少到和额外开销时间相等时，流水线就起不到提高性能的作用了。   流水线没有减少单条指令的执行时间，甚至增加了少许—-由于额外开销 流水线主要提高了 吞吐率   流水线优化技术  结构冲突—">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机组成与结构复习">
+<meta property="og:url" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/index.html">
+<meta property="og:site_name" content="ShihaoF&#39;s Blog">
+<meta property="og:description" content="流水线级数 越多越好？NO！ 流水线对 单条指令的执行时间 基本没有影响， 甚至会 增加执行时间。 因为流水线有 额外开销 —- 锁存器时延和时钟偏移时延。  额外开销限制了流水线深度的增加。当流水线时钟周期减少到和额外开销时间相等时，流水线就起不到提高性能的作用了。   流水线没有减少单条指令的执行时间，甚至增加了少许—-由于额外开销 流水线主要提高了 吞吐率   流水线优化技术  结构冲突—">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//energ&power.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Example_Power.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Cost.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Example_Cost.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Example_Amdahl.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//CPUtime.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Example_CPUtime1.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Example_CPUtime2.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//homework1_1.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//homework1_2.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//GPR.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//GPRcons.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Pipeline_throughput.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Pipeline_cost.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Example_BHT.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//CorrelationBranchPredict.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//(2,2)CBP.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//BTB.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Example_BTB.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//unroll.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Example_CacheSize.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Example_CacheSearch.png">
+<meta property="og:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//Quiz_Cache.png">
+<meta property="article:published_time" content="2024-07-30T08:30:34.000Z">
+<meta property="article:modified_time" content="2024-07-30T08:31:59.963Z">
+<meta property="article:author" content="ShihaoF">
+<meta property="article:tag" content="大二下">
+<meta property="article:tag" content="计算机组成与结构">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/imgs//energ&power.png">
+  
+  
+  
+  <title>计算机组成与结构复习 - ShihaoF&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/test.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="计算机组成与结构复习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-07-30 16:30" pubdate>
+          2024年7月30日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          29 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">计算机组成与结构复习</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <ol>
+<li><p>流水线级数 <strong>越多越好？</strong><br><strong>NO！</strong> 流水线对 <strong>单条指令的执行时间</strong> 基本没有影响， 甚至会 <strong>增加执行时间。</strong> 因为流水线有 <strong>额外开销</strong> —- <strong>锁存器时延和时钟偏移时延。</strong> </p>
+<p>额外开销限制了流水线深度的增加。当流水线时钟周期减少到和额外开销时间相等时，流水线就起不到提高性能的作用了。</p>
+</li>
+<li><ul>
+<li>流水线没有减少单条指令的执行时间，甚至增加了少许—-由于额外开销</li>
+<li>流水线主要提高了 <strong>吞吐率</strong></li>
+</ul>
+</li>
+<li><p>流水线优化技术</p>
+<ul>
+<li>结构冲突—-增加功能单元，功能单元流水</li>
+<li>数据冲突—-停顿；forwarding(前向技术)；编译器将指令隔开</li>
+<li>控制冲突—-flushing(流水线清空)；non-taken(预测分支失败)；taken(预测分支成功)；分支延迟(延迟槽)—-从前，失败处，目标处</li>
+<li>动态分支预测—-分支历史表(BHT);相关分支预测(m,n);分支目标缓冲(BTB)</li>
+<li>循环展开(unrolling)<ul>
+<li>重复循环体多次</li>
+<li>合并不必要的指令</li>
+<li>换名消除相关</li>
+<li>调度调整指令顺序</li>
+</ul>
+</li>
+<li>动态调度—-记分牌(Scoreboard)；Tomasulo算法</li>
+</ul>
+</li>
+<li><p>局部性原理</p>
+<ul>
+<li>时间局部性：在一个时间点被访问的资源，在将来被再次访问的可能性更大</li>
+<li>空间局部性：在一个时间点被访问的资源，邻近它的资源在将来有更大的可能性被访问。</li>
+<li>90/10法则：一个程序在执行时，90%的执行时间在运行10%的代码</li>
+<li><strong>Cache</strong> CPU访问Cache使用的是 <strong>时间局部性</strong>， 而Main Memory将一个Block置换到Cache中利用的是 <strong>空间局部性</strong></li>
+</ul>
+</li>
+<li><p>三种指令集结构</p>
+</li>
+<li><p>相关(dependence)和冲突(hazard)</p>
+<ul>
+<li>dependence—-真实相关(RAW); 名相关—anti相关(WAR); 输出相关(WAW)</li>
+<li>hazard—-结构冲突；数据冲突；控制冲突</li>
+<li><strong>相关不一定导致冲突</strong></li>
+<li>是否有冲突根据代码具体分析；但是相关一定要列完整</li>
+<li>真实相关具有 <strong>传递性</strong></li>
+</ul>
+</li>
+<li><p>写回 与 写直达——按写分配 与 不按写分配</p>
+<ul>
+<li>写回<ul>
+<li>执行”写操作”时，只需将数据写回Cache中对应的块，不用写回到Main Memory中。只有当Cache中的块被置换时，才需要根据”dirty bit”决定是否将块写回Main Memory中</li>
+<li>优点：<ol>
+<li>写操作能够以Cache的速度进行</li>
+<li>对同一单元的多次写操作，最后只需要一次写回到下一级存储器中</li>
+<li>对没有进行修改的块，置换时不需要写回Main Memory中</li>
+<li>写回减少了Main Memory的带宽压力和功耗</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>写直达<ul>
+<li>执行”写操作”时，需要将数据写回到Cache和Main Memory中对应的块。</li>
+<li>优点：<ol>
+<li>常常采用”写缓冲器(write buffer)”来减少”写停顿”</li>
+<li>实现简单</li>
+<li>使得Main Memory中的数据保持最新，和Cache中一致</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>按写分配——用于写回：写不命中时，需要将写操作对应的块从Main Memory中置换到Cache中，再进行写操作</li>
+<li>不按写分配—-用于写直达：写不命中时，直接写入Main Memory中的对应块</li>
+</ul>
+</li>
+<li><p>循环展开</p>
+<ul>
+<li>基本步骤(4步)</li>
+<li></li>
+</ul>
+</li>
+<li><p>记分牌算法 和 Tomasulo算法</p>
+<ul>
+<li>相同点： <strong>顺序发射，乱序执行，乱序完成</strong></li>
+<li>不同点：<ul>
+<li>tomasulo通过<strong>寄存器换名</strong>过程可以消除WAR和WAW冲突； scoreboard 能检测WAR和WAW冲突，一旦检测到冲突，通过<strong>插入停顿周期</strong>来解决这一冲突——记分牌不能消除WAR和WAW冲突 </li>
+<li>检测冲突和控制指令执行方式不同 <ul>
+<li>Tomasulo方法检测冲突和控制指令执行两方面功能是通过<strong>分布在每一功能单元的保留站</strong>来进行的，因此Tomasulo方法是一种<strong>分布式</strong>方法。 </li>
+<li>记分牌方法的上述功能是通过<strong>统一的记分牌</strong>来实现的，因此记分牌方法 是一种<strong>集中式</strong>方法 </li>
+</ul>
+</li>
+<li>写结果的方法不同 <ul>
+<li>Tomasulo方法通过<strong>CDB</strong>直接将功能单元输出的结果<strong>送往需要该结果的所有保留站</strong>，而不必经过寄存器这一中间环节。 </li>
+<li>记分牌方法是将结果<strong>写入FP寄存器</strong>, 因而可能造成等待这一结果的指令都出现停顿现象，之后，所有相关指令的功能单元在读FP 寄存器时又可能 出现竞争现象。 </li>
+</ul>
+</li>
+<li>Tomasulo方法中无检查WAW和WAR竞争功能，因为在指令发射过程中，由 <strong>issue logic结合保留站</strong>完成了register operands的<strong>改名过程，即消除了这两冲突</strong></li>
+<li>记分牌存在结构相关和WAW相关时无法发射后续指令，导致整个流水线空闲；没有转发操作；</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h1 id="Chapter-1-Introduce-to-C-amp-A"><a href="#Chapter-1-Introduce-to-C-amp-A" class="headerlink" title="Chapter 1: Introduce to C&amp;A"></a>Chapter 1: Introduce to C&amp;A</h1><ul>
+<li><p>C&amp;A是什么？</p>
+<ul>
+<li><p>老的观点 of C&amp;A：独立于硬件的对程序员可见的指令集概念</p>
+<p>Computer Architecture is those aspects of <strong><em>the instruction set available to programmers</em></strong>, independent of the hardware on which the instruction set was implemented.</p>
+</li>
+<li><p>Real C&amp;A：</p>
+<p><strong><em>Design to maximize performance within constraints</em></strong>: cost, power, and availability • Includes ISA, microArchitecture, hardware</p>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>摩尔定律：芯片上的晶体管数量每12到18个月翻一番</p>
+</li>
+<li><p>Classes of Computer</p>
+<ul>
+<li>Flynn’s Taxonomy<ul>
+<li>SISD—-单指令单数据流</li>
+<li>SIMD</li>
+<li>MISD</li>
+<li>MIMD</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="Chapter-2-Quantitative-Approaches"><a href="#Chapter-2-Quantitative-Approaches" class="headerlink" title="Chapter 2: Quantitative Approaches"></a>Chapter 2: Quantitative Approaches</h1><ul>
+<li>power and energy</li>
+<li>cost</li>
+<li>performance</li>
+<li>quantitative principles of computer design</li>
+</ul>
+<h2 id="Power-and-Energy"><a href="#Power-and-Energy" class="headerlink" title="Power and Energy"></a>Power and Energy</h2><ul>
+<li><p>energy</p>
+<ul>
+<li>静态energy:  $Energy<em>{static} \propto Current</em>{static} * Voltage $</li>
+<li>动态energy</li>
+</ul>
+</li>
+<li><p>power(功耗)：能量(Energy)消耗的速率</p>
+<ul>
+<li><p>动态power：由于晶体管切换产生</p>
+<p><img src="imgs\\energ&power.png" srcset="/img/loading.gif" lazyload width=50%></p>
+</li>
+<li><p>静态power：由于”漏电流”的流动产生，与晶体管规模相关</p>
+</li>
+</ul>
+</li>
+<li><p>减少功耗</p>
+<ul>
+<li>什么也不做(Do nothing well)</li>
+<li>动态电压频率缩放(Dynamic Voltage-Frequency Scaling—-DVFS)</li>
+<li>设备的低功耗状态</li>
+<li>关闭核心</li>
+</ul>
+</li>
+</ul>
+<h3 id="Example-Power"><a href="#Example-Power" class="headerlink" title="Example: Power"></a>Example: Power</h3><p><img src="imgs\\Example_Power.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<h2 id="Cost"><a href="#Cost" class="headerlink" title="Cost"></a>Cost</h2><p><img src="imgs\\Cost.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<p><img src="imgs\\Example_Cost.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<h2 id="两个关键性能指标"><a href="#两个关键性能指标" class="headerlink" title="两个关键性能指标"></a>两个关键性能指标</h2><ul>
+<li>时延(latency)：完成一个任务所需要的时间</li>
+<li>吞吐率(throughput)：单位时间内完成的任务数</li>
+<li>性能和执行时间成反比</li>
+</ul>
+<h2 id="Benchmark-Suites"><a href="#Benchmark-Suites" class="headerlink" title="Benchmark Suites"></a>Benchmark Suites</h2><p>模拟典型工作负载的程序集</p>
+<ul>
+<li>真实程序</li>
+<li>真实程序的内核</li>
+<li>合成程序</li>
+</ul>
+<h2 id="局部性原理"><a href="#局部性原理" class="headerlink" title="局部性原理"></a>局部性原理</h2><p>局部性原理</p>
+<ul>
+<li>时间局部性：在一个时间点被访问的资源，在将来被再次访问的可能性更大</li>
+<li>空间局部性：在一个时间点被访问的资源，邻近它的资源在将来有更大的可能性被访问。</li>
+<li>90/10法则：一个程序在执行时，90%的执行时间在运行10%的代码</li>
+<li><strong>Cache</strong> CPU访问Cache使用的是 <strong>时间局部性</strong>， 而Main Memory将一个Block置换到Cache中利用的是 <strong>空间局部性</strong></li>
+</ul>
+<h2 id="加快经常性事件-make-common-case-fast"><a href="#加快经常性事件-make-common-case-fast" class="headerlink" title="　加快经常性事件(make common case fast)"></a>　加快经常性事件(make common case fast)</h2><p>计算机设计中<strong>最重要、最普遍、最简单</strong>的原则</p>
+<h2 id="Amdahl-定律"><a href="#Amdahl-定律" class="headerlink" title="Amdahl 定律"></a>Amdahl 定律</h2><p>如果组件 $x$ 被提高了 $S_x$, 同时组件 $x$ 占原来执行时间的 $F_x$，那么加速比 $Speedup$ 为：</p>
+<p>$ \text{Speedup} = \frac{\text{OldExecutionTime}}{\text{NewExecutionTime}} = \frac{\text{NewPerformance}}{\text{OldPerformance}} = \frac{1}{(1-F_x)+\frac{F_x}{S_x} }$</p>
+<ul>
+<li>$S_x \rightarrow \infty, speedup\rightarrow 1/(1-F_x)$<ul>
+<li>$S_x$ 越趋近于无穷，$F_x/S_x$ 越趋近于0， speedup增加的速度越慢</li>
+</ul>
+</li>
+<li>$F_x\rightarrow 1, speedup \rightarrow S_x$</li>
+</ul>
+<h3 id="Example-Amdahl"><a href="#Example-Amdahl" class="headerlink" title="Example: Amdahl"></a>Example: Amdahl</h3><p><img src="imgs\\Example_Amdahl.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<h2 id="CPU-time"><a href="#CPU-time" class="headerlink" title="CPU time"></a>CPU time</h2><p>$CPU \, time \,=\, IC \,\times\, CPI \,\times\, CCT $</p>
+<p>$CPI \,=\, \sum_{i=1}^{n} (IF_i \,\times\, CPI_i)$</p>
+<p>CPI类似吞吐率</p>
+<p><img src="imgs\\CPUtime.png" srcset="/img/loading.gif" lazyload width=50%></p>
+<h3 id="Example-CPU-time"><a href="#Example-CPU-time" class="headerlink" title="Example: CPU time"></a>Example: CPU time</h3><p><img src="imgs\\Example_CPUtime1.png" srcset="/img/loading.gif" lazyload width=50%></p>
+<p><img src="imgs\\Example_CPUtime2.png" srcset="/img/loading.gif" lazyload width=50%></p>
+<h2 id="Homework-1"><a href="#Homework-1" class="headerlink" title="Homework 1"></a>Homework 1</h2><ul>
+<li>未改进的部分在old和new的执行时间相同</li>
+</ul>
+<p><img src="imgs\\homework1_1.png" srcset="/img/loading.gif" lazyload width=50%></p>
+<p><img src="imgs\\homework1_2.png" srcset="/img/loading.gif" lazyload width=50%></p>
+<h1 id="Chapter-3-Instruction-Set-Principles"><a href="#Chapter-3-Instruction-Set-Principles" class="headerlink" title="Chapter 3: Instruction Set Principles"></a>Chapter 3: Instruction Set Principles</h1><h2 id="通用寄存器结构优缺点"><a href="#通用寄存器结构优缺点" class="headerlink" title="通用寄存器结构优缺点"></a>通用寄存器结构优缺点</h2><p><img src="imgs\\GPR.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<p><img src="imgs\\GPRcons.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<h1 id="Chapter-4-Pipelining"><a href="#Chapter-4-Pipelining" class="headerlink" title="Chapter 4: Pipelining"></a>Chapter 4: Pipelining</h1><p>流水线概念：将指令的处理过程分解为若干可区分的段(stage)，确保有足够的硬件资源使得在每个段能够处理不同的指令。</p>
+<h2 id="流水线计算"><a href="#流水线计算" class="headerlink" title="流水线计算"></a>流水线计算</h2><h3 id="吞吐率"><a href="#吞吐率" class="headerlink" title="吞吐率"></a>吞吐率</h3><p><img src="imgs\\Pipeline_throughput.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<ul>
+<li></li>
+</ul>
+<h3 id="Cost-1"><a href="#Cost-1" class="headerlink" title="Cost"></a>Cost</h3><p><img src="imgs\\Pipeline_cost.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<h2 id="流水线注意点"><a href="#流水线注意点" class="headerlink" title="流水线注意点"></a>流水线注意点</h2><ul>
+<li>流水线无助于单任务的时延，只是提高了整体的吞吐率<ul>
+<li>甚至会增加单指令的执行时间，由于流水线额外开销</li>
+</ul>
+</li>
+<li>时间长的段将成为流水线的瓶颈。<ul>
+<li>流水线的时钟周期 = 最长段时间</li>
+</ul>
+</li>
+<li>潜在加速比 = 流水线深度</li>
+<li>不平衡的段会影响加速比</li>
+<li>“填充” 和 “排空” 时间会影响流水线加速比</li>
+</ul>
+<h2 id="流水线的MIPS实现"><a href="#流水线的MIPS实现" class="headerlink" title="流水线的MIPS实现"></a>流水线的MIPS实现</h2><ul>
+<li>register 前半周期写，后半周期读</li>
+<li>Memory 分为数据 和 指令</li>
+<li>固定字段译码</li>
+</ul>
+<h3 id="MIPS特征"><a href="#MIPS特征" class="headerlink" title="MIPS特征"></a>MIPS特征</h3><ul>
+<li>ISA编码：所有指令的长度相同</li>
+<li>存储器访问只通过 load/store 指令</li>
+</ul>
+<h2 id="流水线CCT计算"><a href="#流水线CCT计算" class="headerlink" title="流水线CCT计算"></a>流水线CCT计算</h2><ul>
+<li>告诉了每个stage的时间，那么最长的stage时间加上overload就是 流水线CCT</li>
+<li>只告诉了original时钟周期， 和overload，那么 两者相加就是 CCT</li>
+</ul>
+<h2 id="流水线冲突"><a href="#流水线冲突" class="headerlink" title="流水线冲突"></a>流水线冲突</h2><h3 id="结构冲突"><a href="#结构冲突" class="headerlink" title="结构冲突"></a>结构冲突</h3><p>由于硬件资源难以满足多指令重叠执行造成的资源冲突</p>
+<ul>
+<li>重复设置硬件资源</li>
+<li>功能单元完全流水，重新设计流水线段stage</li>
+</ul>
+<h3 id="数据冲突"><a href="#数据冲突" class="headerlink" title="数据冲突"></a>数据冲突</h3><p>指令重叠执行时，由于后面的指令需要用到前面指令的执行结果，由此造成的冲突</p>
+<ul>
+<li>stall直到写到寄存器</li>
+<li>forwarding</li>
+<li>interlock—尽管是NOP，但是类似stall<ul>
+<li>load指令造成</li>
+</ul>
+</li>
+</ul>
+<h3 id="控制冲突"><a href="#控制冲突" class="headerlink" title="控制冲突"></a>控制冲突</h3><p>由分支语句或者跳转指令所造成的冲突</p>
+<ul>
+<li>flushing—stall直到PC值变换</li>
+<li>predict non-taken—-预测错误就NOP，但是NOP时，后续指令可以fetch</li>
+<li>分支延迟(branch delay)<ul>
+<li>分支延迟与分支预测的区别：分支延迟的延迟槽里的指令是一定会执行的。同时不管分支成功与否，延迟槽指令的执行不会影响整体程序的正确性</li>
+<li>从前调度，从目标处调度—-PC要修改+4，从失败处调度</li>
+</ul>
+</li>
+</ul>
+<h1 id="Chapter-5-Instruction-Level-Parallelism"><a href="#Chapter-5-Instruction-Level-Parallelism" class="headerlink" title="Chapter 5: Instruction Level Parallelism"></a>Chapter 5: Instruction Level Parallelism</h1><h2 id="动态分支预测"><a href="#动态分支预测" class="headerlink" title="动态分支预测"></a>动态分支预测</h2><h3 id="分支历史表-BHT"><a href="#分支历史表-BHT" class="headerlink" title="分支历史表(BHT)"></a>分支历史表(BHT)</h3><ul>
+<li>一个指令一个表项，可能表项复用</li>
+</ul>
+<h3 id="Example-BHT"><a href="#Example-BHT" class="headerlink" title="Example: BHT"></a>Example: BHT</h3><p><img src="imgs\\Example_BHT.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<h3 id="相关分支预测（m-n-2-level-predictor"><a href="#相关分支预测（m-n-2-level-predictor" class="headerlink" title="相关分支预测（m,n) 2-level predictor"></a>相关分支预测（m,n) 2-level predictor</h3><ul>
+<li>BHT只使用了单条指令过去的表现来预测未来的情况</li>
+<li>相关分支预测使用 $m$ 条分支指令的 $2^m$ 个predictor，每个predictor占 $n$ bit来预测当前分支</li>
+</ul>
+<h3 id="Example-Correlation-Branch-Predict"><a href="#Example-Correlation-Branch-Predict" class="headerlink" title="Example: Correlation Branch Predict"></a>Example: Correlation Branch Predict</h3><p><img src="imgs\\CorrelationBranchPredict.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<p><img src="imgs\\(2,2)CBP.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<h3 id="分支目标缓冲-BTB"><a href="#分支目标缓冲-BTB" class="headerlink" title="分支目标缓冲(BTB)"></a>分支目标缓冲(BTB)</h3><p><img src="imgs\\BTB.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<h3 id="Example-BTB"><a href="#Example-BTB" class="headerlink" title="Example: BTB"></a>Example: BTB</h3><p><img src="imgs\\Example_BTB.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<h2 id="循环展开"><a href="#循环展开" class="headerlink" title="循环展开"></a>循环展开</h2><p>步骤：</p>
+<ol>
+<li>重复循环体多次</li>
+<li>融合不必要的指令</li>
+<li>消除名相关</li>
+<li>调整指令顺序</li>
+</ol>
+<p><img src="imgs\\unroll.png" srcset="/img/loading.gif" lazyload width=40% ></p>
+<h1 id="Chapter-6-Memory-Hierarchy-Design"><a href="#Chapter-6-Memory-Hierarchy-Design" class="headerlink" title="Chapter 6: Memory Hierarchy Design"></a>Chapter 6: Memory Hierarchy Design</h1><h2 id="为什么内存层次设计是必要的"><a href="#为什么内存层次设计是必要的" class="headerlink" title="为什么内存层次设计是必要的?"></a>为什么内存层次设计是必要的?</h2><p>内存层次结构设计在计算机架构中至关重要，原因有几个，主要与性能、成本和能效有关。以下是详细解释：</p>
+<ul>
+<li><p>性能改进：</p>
+<ul>
+<li>速度差异：<strong>CPU和主存储器之间存在显著的速度差异</strong>。现代CPU可以在纳秒内执行指令，而从主存储器（DRAM）访问数据需要更长的时间，<strong>如果必须等待数据，会导致CPU空闲时间</strong>。内存层次结构，<strong>更快的内存类型更接近CPU，有助于减轻这种延迟</strong>。</li>
+<li>缓存利用：通过使用多级缓存（L1、L2、L3），系统可以利用局部性原则（时间和空间）将经常访问的数据保存在更快、更小的缓存中，从而<strong>减少平均访问时间</strong>。</li>
+</ul>
+</li>
+<li><p>成本效率：</p>
+<ul>
+<li>性价比权衡：高速缓存中使用的SRAM等高速内存价格昂贵，不适用于大规模存储。用于主存储器的DRAM速度较慢，但更便宜。磁盘存储（HDD或SSD）甚至更便宜，用于海量、访问频率较低的数据。分层设计通过在不同级别使用不同类型的内存来平衡成本和性能。</li>
+</ul>
+</li>
+<li><p>电源效率：</p>
+<ul>
+<li>能耗：与从主存或磁盘存储访问数据相比，从内存层次结构中的更高级别（如缓存）访问数据消耗的功耗更低。内存层次结构通过最大限度地减少对速度较慢、耗电的内存组件的访问来降低系统的整体能耗。</li>
+</ul>
+</li>
+<li><p>局部性原则：</p>
+<ul>
+<li>时间局部性：最近访问的数据很可能很快再次访问的原则。通过将最近的数据保存在最快、最小的缓存（L1）中来利用此原则。</li>
+<li>空间局部性：位于最近访问的数据附近的数据可能很快就会被访问的原则。较大的缓存（L2、L3）和主存储器通过加载连续的数据块来利用这一点。</li>
+</ul>
+</li>
+</ul>
+<h2 id="映射规则"><a href="#映射规则" class="headerlink" title="映射规则"></a>映射规则</h2><h3 id="直接映射"><a href="#直接映射" class="headerlink" title="直接映射"></a>直接映射</h3><p>主存储器中的某块可以存放到Cache中的唯一位置</p>
+<ul>
+<li>查找简单快速，适合大型Cache</li>
+<li>给定一个Block唯一的固定位置，容易与其他块冲突，导致Cache不命中率较高</li>
+</ul>
+<h3 id="全相联映射"><a href="#全相联映射" class="headerlink" title="全相联映射"></a>全相联映射</h3><p>主存储器中的某块可以存放到Cache中的任意位置</p>
+<ul>
+<li>完全灵活随机的设置块在Cache中的位置</li>
+<li>查找代价较高，需要比较每个Block的Tag—-适合小型Cache</li>
+<li><strong>最小的不命中率</strong></li>
+</ul>
+<h3 id="多路组相联映射"><a href="#多路组相联映射" class="headerlink" title="多路组相联映射"></a>多路组相联映射</h3><p>主存储器中的某块可以存放到Cache中的唯一set中的任意位置</p>
+<p><strong>相联程度增加 -&gt; #Block in Set增加 -&gt; #Set减小 -&gt; 查找时间增加 -&gt; 不命中率减少</strong></p>
+<h3 id="Example-Cache-Size"><a href="#Example-Cache-Size" class="headerlink" title="Example: Cache Size"></a>Example: Cache Size</h3><p><strong>注意有一个 1-bit 的 valid位</strong></p>
+<p><img src="imgs\\Example_CacheSize.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<h2 id="查找规则"><a href="#查找规则" class="headerlink" title="查找规则"></a>查找规则</h2><p><strong>先通过 Index 定位 Set； 再通过 Tag 定位 Block</strong></p>
+<h3 id="Example-Cache-Search"><a href="#Example-Cache-Search" class="headerlink" title="Example: Cache Search"></a>Example: Cache Search</h3><p><img src="imgs\\Example_CacheSearch.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<h2 id="Quiz-Cache"><a href="#Quiz-Cache" class="headerlink" title="Quiz: Cache"></a>Quiz: Cache</h2><p><strong>注意最后是 Tag comparison， 不用加上定位set的那一次</strong></p>
+<p><img src="imgs\\Quiz_Cache.png" srcset="/img/loading.gif" lazyload width=50% ></p>
+<p>​    </p>
+<h2 id="写策略"><a href="#写策略" class="headerlink" title="写策略"></a>写策略</h2><p>写回 与 写直达——按写分配 与 不按写分配</p>
+<ul>
+<li>写回<ul>
+<li>执行”写操作”时，只需将数据写回Cache中对应的块，不用写回到Main Memory中。只有当Cache中的块被置换时，才需要根据”dirty bit”决定是否将块写回Main Memory中</li>
+<li>优点：<ol>
+<li>写操作能够以Cache的速度进行</li>
+<li>对同一单元的多次写操作，最后只需要一次写回到下一级存储器中</li>
+<li>对没有进行修改的块，置换时不需要写回Main Memory中</li>
+<li>写回减少了Main Memory的带宽压力和功耗</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>写直达<ul>
+<li>执行”写操作”时，需要将数据写回到Cache和Main Memory中对应的块。</li>
+<li>优点：<ol>
+<li>常常采用”写缓冲器(write buffer)”来减少”写停顿”</li>
+<li>实现简单</li>
+<li>使得Main Memory中的数据保持最新，和Cache中一致</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>按写分配——用于写回：写不命中时，需要将写操作对应的块从Main Memory中置换到Cache中，再进行写操作</li>
+<li>不按写分配—-用于写直达：写不命中时，直接写入Main Memory中的对应块</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84/" class="category-chain-item">计算机组成与结构</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%A4%A7%E4%BA%8C%E4%B8%8B/" class="print-no-link">#大二下</a>
+      
+        <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84/" class="print-no-link">#计算机组成与结构</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>计算机组成与结构复习</div>
+      <div>http://example.com/2024/07/30/计算机组成与结构复习/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>ShihaoF</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年7月30日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/07/30/OS%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" title="OS期末复习">
+                        <span class="hidden-mobile">OS期末复习</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
