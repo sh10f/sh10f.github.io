@@ -4,6 +4,33 @@
   
   
   <entry>
+    <title>Bi-channel Multiple Sparse Graph Attention Networks for Session-based Recommendation论文复现</title>
+    <link href="/2024/08/31/Bi-channel-Multiple-Sparse-Graph-Attention-Networks-for-Session-based-Recommendation%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/"/>
+    <url>/2024/08/31/Bi-channel-Multiple-Sparse-Graph-Attention-Networks-for-Session-based-Recommendation%E8%AE%BA%E6%96%87%E5%A4%8D%E7%8E%B0/</url>
+    
+    <content type="html"><![CDATA[<h1 id="论文阅读"><a href="#论文阅读" class="headerlink" title="论文阅读"></a>论文阅读</h1><h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><ul><li>Session-based Recommendation ： 基于匿名会话用户的交互序列</li><li>SBR的两个挑战<ul><li>如何使用会话外的信息<ul><li>😶‍🌫️ 会话外的信息 是什么信息？ 是会话间的信息吗？是其他会话内的信息吗？还是什么？</li></ul></li><li>如何减少会话内中的无关信息的影响</li></ul></li><li><strong><em>Multiple Sparse Graph Attention Networks</em></strong>（MSGAT）<ul><li>😶‍🌫️ <strong>稀疏 —- 怎么稀疏的？</strong></li><li>😶‍🌫️ 什么是图神经网络？</li><li>😶‍🌫️ 什么是注意力机制？</li><li>😶‍🌫️ 怎么将注意力机制引入图神经网络？</li></ul></li><li>MSGAT 采用 双通道 模拟 会话内(intra)和会话间(inter)的信息<ul><li>😶‍🌫️ 什么是会话间的信息？</li></ul></li><li><p>会话内</p><ul><li>会话内 采用 <strong>门控图神经网络</strong> 来最初编码， 再通过 <strong>自注意机制</strong> 生成目标表征。</li><li>全局表征通过目标表征降噪。目标表征是双通道的媒介</li><li>😶‍🌫️ 什么是门控单元？门控图神经网络与门控RNN的关系？</li></ul></li><li><p>会话间</p><ul><li>通过 <strong>目标感知的全局注意力机制</strong> 来生成降噪的 <strong>关系表征</strong></li><li>😶‍🌫️ 关系表征？会话间关系？</li></ul></li><li>基于双通道的有效信息从 <strong>intent</strong> 的角度来考虑 会话相似度。再通过 <strong>意图邻向协作模块</strong> 来组合相关信息达到增强当前会话的目的。<ul><li>😶‍🌫️ 什么是 intent</li></ul></li></ul><h2 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="　1 Introduction"></a>　1 Introduction</h2><ul><li>SBR 使用 匿名短数据 来推荐 下一个item</li><li>三类模型： 传统的，隐式表征的，深度神经网络的</li><li>深度神经网络主要三种 —- <strong>RNN，CNN，GNN</strong><ul><li>RNN 长处： 能捕捉长期的顺序关系</li><li>GNN： 能捕捉短期的关系，能保留成对的转换关系，但是长期的关系上不如RNN</li><li>GAT： GNN + Attention。Attention帮助GNN捕捉长期的依赖关系</li></ul></li><li><strong>GAT 的不足：</strong><ul><li>GAT很少考虑会话内的噪音item</li><li>之前的GAT模型很少考虑会话间的信息</li></ul></li><li>MSGAT的会话内建模<ul><li>a GNN 初始化结点编码， followed by 自注意机制，生成 <strong>目标表征</strong>。通过目标表征对全局表征降噪。<ul><li>😶‍🌫️ 这里的降噪是不是降低了 会话内噪音的影响？<ul><li>😶‍🌫️ 怎么降噪的？是随机还是分类？有没有对噪声item识别方面的研究？</li><li>和扩散模型的思考？</li></ul></li></ul></li></ul></li><li>MSGAT的会话间建模<ul><li>通过联合目标表征 使用 SGAT 来生成 <strong>关系表征</strong></li></ul></li><li>MSGAT 还通过 <strong><em>Intent Neighbor Collaboration</em></strong> 来生成 <strong>会话意图表征</strong> <ul><li>😶‍🌫️ 怎么充分利用这 三个表征？怎么将其结合起来？</li></ul></li></ul><h2 id="2-Related-Work"><a href="#2-Related-Work" class="headerlink" title="2 Related Work"></a>2 Related Work</h2><p>多图的效果比较好</p><h2 id="3-Approach"><a href="#3-Approach" class="headerlink" title="3 Approach"></a>3 Approach</h2><p>3.1 Problem definition</p><ul><li><p>数据集</p><ul><li>会话集：$S = {s_1, s_2, s_3,…,s_m}$</li><li>会话： $s<em>t = {i</em>{t,1},i<em>{t,2},…,i</em>{t,L}}$</li></ul></li><li><p>目标：通过前面的L个点击的item <strong>预测第L+1 个item</strong></p></li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>SBR</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Session-based Recommendation</tag>
+      
+      <tag>论文复现</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>计算机组成与结构复习</title>
     <link href="/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/"/>
     <url>/2024/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E4%B8%8E%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/</url>
